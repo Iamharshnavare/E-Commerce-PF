@@ -2,7 +2,18 @@
 import { useState } from "react";
 import {Button} from "@/components/ui/button"
 import Image from "next/image"
+import Recommendation from "./recommendation";
+import CustomerReviews from "./customerReviews";
 export default function ProductDetails(){
+    const [selectedSize, setSelectedSize] = useState('');
+    const [selectedColor, setSelectedColor] = useState('');
+    const sizes = ['S', 'M', 'L', 'XL'];
+    const colors = [
+        { name: 'Tan',value: '#C4A777',hover:'#B39667' },
+        { name: 'Rose',value: '#B47B7B',hover:'#A36B6B' },
+        { name: 'Green',value: '#7EAE7E',hover:'#6E9E6E' },
+        { name: 'Purple',value: '#9B7BA9',hover:'#8B6B99' }
+    ];
     const [quantity, setQuantity]=useState(1);
     const incrementQuantity=() => setQuantity(prev => prev+1);
     const decrementQuantity=() => setQuantity(prev => prev>1 ? prev-1:1);
@@ -15,7 +26,7 @@ export default function ProductDetails(){
             <div className="flex-1">
             <div className="flex items-center justify-between mb-2">
                 <h1 className="text-5xl font-bold">JUTE BAG</h1>
-                <button className="text-2xl">♡</button>
+                 <button>♡</button>
             </div>
             <div className="flex gap-1 mb-6">
                 {[...Array(5)].map((_, i) => (
@@ -31,10 +42,20 @@ export default function ProductDetails(){
                     <div className="flex items-center gap-4 mb-2">
                         <h5 className="text-lg font-bold w-24">SIZE</h5>
                         <div className="flex gap-2">
-                            <Button variant="outline" className="w-12 h-12 border-2 border-black bg-white hover:bg-gray-100">S</Button>
-                            <Button variant="outline" className="w-12 h-12 border-2 border-black bg-white hover:bg-gray-100">M</Button>
-                            <Button variant="outline" className="w-12 h-12 border-2 border-black bg-white hover:bg-gray-100">L</Button>
-                            <Button variant="outline" className="w-12 h-12 border-2 border-black bg-white hover:bg-gray-100">XL</Button>
+                            {sizes.map((size) => (
+                                <Button 
+                                    key={size}
+                                    variant="outline" 
+                                    onClick={() => setSelectedSize(size)}
+                                    className={`w-12 h-12 border-2 border-black hover:bg-gray-100 ${
+                                        selectedSize === size 
+                                            ? 'bg-black text-white hover:bg-black hover:text-white' 
+                                            : 'bg-white text-black'
+                                    }`}
+                                >
+                                    {size}
+                                </Button>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -42,10 +63,22 @@ export default function ProductDetails(){
                     <div className="flex items-center gap-4 mb-2">
                         <h5 className="text-lg font-bold w-24">COLOR</h5>
                         <div className="flex gap-2">
-                            <Button className="w-12 h-12 border-2 border-black bg-[#C4A777] hover:bg-[#B39667]"></Button>
-                            <Button className="w-12 h-12 border-2 border-black bg-[#B47B7B] hover:bg-[#A36B6B]"></Button>
-                            <Button className="w-12 h-12 border-2 border-black bg-[#7EAE7E] hover:bg-[#6E9E6E]"></Button>
-                            <Button className="w-12 h-12 border-2 border-black bg-[#9B7BA9] hover:bg-[#8B6B99]"></Button>
+                           {colors.map((color) => (
+                                        <Button 
+                                            key={color.name}
+                                            onClick={() => setSelectedColor(color.name)}
+                                            className={`w-12 h-12 border-2 ${
+                                                selectedColor === color.name 
+                                                    ? 'border-4 border-black' 
+                                                    : 'border-black'
+                                            }`}
+                                            style={{ 
+                                                backgroundColor: color.value,
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = color.hover}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = color.value}
+                                        />
+                                    ))}
                         </div>
                     </div>
                 </div>
@@ -73,57 +106,11 @@ export default function ProductDetails(){
                     BUY NOW
                 </Button>
             </div>
-            </div>
-        </div>
-        <div className="max-w-7xl mx-auto bg-[#D4E4CA] rounded-3xl p-12 mb-16">
-            <h2 className="text-4xl font-bold mb-8">Recommendation</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-[#E8E4D8] rounded-3xl h-50">1</div>
-                <div className="bg-[#E8E4D8] rounded-3xl h-50">2</div>
-                <div className="bg-[#E8E4D8] rounded-3xl h-50">3</div>
-            </div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto">
-            <h2 className="text-4xl font-bold mb-4">Customer Reviews</h2>
-            <div className="flex gap-1 mb-8">
-                {[...Array(5)].map((_, i) => (
-                    <span key={i} className="text-2xl">☆</span>
-                ))}
-            </div>
             
-            <div className="flex gap-8">
-                <div className="w-48">
-                    <h3 className="font-bold text-lg mb-4">FILTERS</h3>
-                    <Button className={"mt-2 ml-2"}>Label 1</Button>
-                    <Button className={"mt-2 ml-2"}>Label 2</Button>
-                    <Button className={"mt-2 ml-2"}>Label 3</Button>
-                    <Button className={"mt-2 ml-2"}>Label 4</Button>
-                </div>
-                
-                <div className="flex-1 space-y-6">
-                    <div className="bg-[#E8E4D8] rounded-3xl p-6 h-32">
-                        <h4 className="font-bold text-lg mb-2">NAME</h4>
-                        <div className="flex gap-1 mb-4">
-                            {[...Array(5)].map((_, i) => (
-                                <span key={i} className="text-xl">☆</span>
-                            ))}
-                        </div>
-                        <p className="font-bold">REVIEW</p>
-                    </div>
-                    
-                    <div className="bg-[#E8E4D8] rounded-3xl p-6 h-32">
-                        <h4 className="font-bold text-lg mb-2">NAME</h4>
-                        <div className="flex gap-1 mb-4">
-                            {[...Array(5)].map((_, i) => (
-                                <span key={i} className="text-xl">☆</span>
-                            ))}
-                        </div>
-                        <p className="font-bold">REVIEW</p>
-                    </div>
-                </div>
             </div>
         </div>
+        <Recommendation/>
+        <CustomerReviews/>
         </div>
     )
 }

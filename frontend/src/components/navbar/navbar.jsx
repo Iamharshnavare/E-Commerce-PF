@@ -27,9 +27,9 @@ export default function Navbar() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
+                <NavigationMenuTrigger className={"bg-[#FFF9EF]"}>Categories</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className="grid w-[min(90vw,500px)] gap-3 p-4 sm:grid-cols-1 md:grid-cols-2 md:gap-4">
+                  <ul className="grid w-[min(90vw,500px)] gap-3 p-4 sm:grid-cols-1 md:grid-cols-2 md:gap-4 bg-[#FFF9EF]">
                     <ListItem title="Wall Hangings">
                       Description
                     </ListItem>
@@ -48,7 +48,7 @@ export default function Navbar() {
 
               <NavigationMenuItem>
                 <NavigationMenuLink
-                  className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+                  className="group inline-flex h-10 w-max items-center justify-center rounded-md  px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 bg-[#FFF9EF]"
                 >
                   About
                 </NavigationMenuLink>
@@ -56,7 +56,7 @@ export default function Navbar() {
 
               <NavigationMenuItem>
                 <NavigationMenuLink
-                  className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+                  className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-[#FFF9EF] px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
                 >
                   Contact
                 </NavigationMenuLink>
@@ -73,8 +73,11 @@ export default function Navbar() {
               <Input
                 type="search"
                 placeholder="Search products..."
-                className="pl-10 h-10 transition-all duration-300"
-                onFocus={() => setIsSearchExpanded(true)}
+                className={`pl-10 h-10 transition-all duration-300 ${isSearchExpanded ? 'bg-white' : ''}`}
+                onFocus={() =>{ 
+                  setIsSearchExpanded(true)
+                  className="bg-white"
+                }}
                 onBlur={() => setIsSearchExpanded(false)}
               />
             </div>
