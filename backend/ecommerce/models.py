@@ -79,6 +79,7 @@ class Order(models.Model):
     STATUS_CHOICES = (
         ("PENDING", "Pending"),
         ("PAID", "Paid"),
+        ("FAILED", "Failed"),
         ("CANCELLED", "Cancelled"),
         ("SHIPPED", "Shipped"),
         ("DELIVERED", "Delivered"),
@@ -87,14 +88,19 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING", db_index=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_provider = models.CharField(max_length=50)
-    payment_id = models.CharField(max_length=255, blank=True, null=True)
+
+    # Razorpay Specific Fields
+    razorpay_order_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
+
+    payment_provider = models.CharField(max_length=50, default="RAZORPAY")
     shipping_address = models.TextField()
     phone_number = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.public_order_id
+        return f"{self.public_order_id} - {self.status}"
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
@@ -127,3 +133,16 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.rating}★ - {self.product.title}"
+
+class Offer(models.Model):
+    COUPON_TYPE = (
+        ("PERCENT", "Percent"),
+        ("DIRECT", "Direct"),
+    )
+
+    coupon = models.CharField(max_length=9, primary_key=True)
+    type = models.CharField(max_length=20, choices=COUPON_TYPE, default="PERCENT")
+    unit = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.coupon
