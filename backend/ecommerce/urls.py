@@ -15,5 +15,6 @@ urlpatterns = [
     ),
     path("api/apply-offer/", views.apply_offer, name="apply_offer"),
 
+    path('api/sync-cart-wishlist/', views.sync_cart_wishlist, name='sync_cart_wishlist'),
 
 ]

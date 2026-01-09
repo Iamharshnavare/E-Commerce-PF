@@ -1,7 +1,6 @@
 import {ShoppingCart } from 'lucide-react';
 import { Card,CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 export default function Recommendation() {
   const products=[ //fetch from db (dummy prods)
     {
@@ -45,11 +44,7 @@ export default function Recommendation() {
           <Card key={product.id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow duration-300">
             <CardContent className="p-0">
               <div className="aspect-square overflow-hidden">
-                <Image
-                    src="/jute-bag.png"
-                    alt="Title"
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
+
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">

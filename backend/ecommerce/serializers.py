@@ -156,3 +156,17 @@ class OfferApplySerializer(serializers.Serializer):
             "discount_amount": round(discount, 2),
             "final_amount": round(final_amount, 2),
         }
+class CartItemSerializer(serializers.ModelSerializer):
+    product = ProductListSerializer()
+
+    class Meta:
+        model = CartItem
+        fields = ['product', 'quantity']
+
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductListSerializer()
+
+    class Meta:
+        model = Wishlist
+        fields = ['product']
+

@@ -6,6 +6,9 @@ from .decorators import allowed_users
 from .models import Product , Offer
 from .serializers import OfferApplySerializer, ProductListSerializer ,RegisterSerializer, LoginSerializer, ProductDetailSerializer
 from django.shortcuts import get_object_or_404
+from .models import Product, CartItem, Wishlist
+from .serializers import ProductListSerializer ,RegisterSerializer, LoginSerializer, CartItemSerializer, WishlistSerializer
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -94,3 +97,18 @@ def apply_offer(request):
     return Response(serializer.validated_data)
 
 
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def sync_cart_wishlist(request):
+    user = request.user
+    cart_items = CartItem.objects.filter(user=user)
+    wishlist_items = Wishlist.objects.filter(user=user)
+
+    cart_serializer = CartItemSerializer(cart_items, many=True, context={"request": request})
+    wishlist_serializer = WishlistSerializer(wishlist_items, many=True, context={"request": request})
+
+    return Response({
+        "cart": cart_serializer.data,
+        "wishlist": wishlist_serializer.data
+    })
