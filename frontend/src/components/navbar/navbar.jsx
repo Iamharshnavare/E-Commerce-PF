@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { Search, ShoppingCart, Bell, User } from "lucide-react";
+import Link from "next/link";
+import { Search, ShoppingCart, Bell, User, Heart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -74,24 +75,34 @@ export default function Navbar() {
                 type="search"
                 placeholder="Search products..."
                 className={`pl-10 h-10 transition-all duration-300 ${isSearchExpanded ? 'bg-white' : ''}`}
-                onFocus={() =>{ 
-                  setIsSearchExpanded(true)
-                  className="bg-white"
-                }}
+                onFocus={() => setIsSearchExpanded(true)}
                 onBlur={() => setIsSearchExpanded(false)}
               />
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs pointer-events-none"
-              >
-                0
-              </Badge>
-            </Button>
+            <Link href="/cartsystem/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs pointer-events-none"
+                >
+                  0
+                </Badge>
+              </Button>
+            </Link>
+            <Link href="/wishlist">
+              <Button variant="ghost" size="icon" className="relative">
+                <Heart className="h-5 w-5" />
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs pointer-events-none"
+                >
+                  0
+                </Badge>
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full pointer-events-none"></span>

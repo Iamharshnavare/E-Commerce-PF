@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { Heart } from "lucide-react";
 import Navbar from "@/components/navbar/navbar";
 const products = [
   {
@@ -62,6 +63,75 @@ const products = [
 
 export default function Shop() {
   const [loading, setLoading] = useState(false);
+  const [wishlistedItems, setWishlistedItems] = useState(new Set());
+
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
+
+  const fetchWishlist = async () => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) return;
+
+      const response = await fetch('/api/sync-cart-wishlist/', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const wishlistedIds = new Set(data.wishlist.map(item => item.product.public_product_id));
+        setWishlistedItems(wishlistedIds);
+      }
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    }
+  };
+
+  const toggleWishlist = async (productId) => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        alert('Please log in to add items to wishlist');
+        return;
+      }
+
+      const isWishlisted = wishlistedItems.has(productId);
+      const method = isWishlisted ? 'DELETE' : 'POST';
+
+      const response = await fetch('/api/wishlist/', {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          product_id: productId
+        })
+      });
+
+      if (response.ok) {
+        setWishlistedItems(prev => {
+          const newSet = new Set(prev);
+          if (isWishlisted) {
+            newSet.delete(productId);
+          } else {
+            newSet.add(productId);
+          }
+          return newSet;
+        });
+      } else {
+        const error = await response.json();
+        alert(`Failed to ${isWishlisted ? 'remove from' : 'add to'} wishlist: ${error.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      alert('Error updating wishlist');
+    }
+  };
 
   const addToCart = async (product) => {
     setLoading(true);
@@ -115,24 +185,37 @@ export default function Shop() {
             <Image
               src={item.image}
               alt={item.name}
+              width={200}
+              height={150}
               style={{ width: "100%", height: "150px", objectFit: "cover" }}
             />
             <h4>{item.name}</h4>
             <p>${item.price.toFixed(2)}</p>
-            <button 
-              onClick={() => addToCart(item)}
-              disabled={loading}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: loading ? "#ccc" : "#F59E0B",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: loading ? "not-allowed" : "pointer"
-              }}
-            >
-              {loading ? "Adding..." : "Add to Cart"}
-            </button>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center" }}>
+              <button
+                onClick={() => addToCart(item)}
+                disabled={loading}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: loading ? "#ccc" : "#F59E0B",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: loading ? "not-allowed" : "pointer"
+                }}
+              >
+                {loading ? "Adding..." : "Add to Cart"}
+              </button>
+              <Heart
+                size={24}
+                style={{
+                  cursor: "pointer",
+                  color: wishlistedItems.has(item.public_product_id) ? "red" : "gray",
+                  fill: wishlistedItems.has(item.public_product_id) ? "red" : "none"
+                }}
+                onClick={() => toggleWishlist(item.public_product_id)}
+              />
+            </div>
           </div>
         ))}
       </div>
