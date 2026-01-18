@@ -24,6 +24,7 @@ export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const router = useRouter();
+  const [profilePath, setProfilePath] = useState("/profile");
 
   const updateCart = async () => {
     const count = await fetchCartCount();
@@ -41,6 +42,12 @@ export default function Navbar() {
     if (token) {
       updateCart();
       updateWishlist();
+    }
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+    if (role === "seller") {
+      setProfilePath("/seller-dashboard");
+    } else {
+      setProfilePath("/profile");
     }
 
     const handleCartUpdate = () => updateCart();
@@ -97,21 +104,20 @@ export default function Navbar() {
     <nav className="w-full border-b bg-[#FFF9EF] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
-
           <div className="shrink-0 flex items-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => router.push("/homepage")}>
             <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">Crafted Roots</span>
           </div>
 
-          <NavigationMenu>
+          <NavigationMenu href="/shoppage">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className={"bg-[#FFF9EF]"}>Categories</NavigationMenuTrigger>
+                <NavigationMenuTrigger className={"bg-[#FFF9EF]"}>Shop</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[min(90vw,500px)] gap-3 p-4 sm:grid-cols-1 md:grid-cols-2 md:gap-4 bg-[#FFF9EF]">
-                    <ListItem title="Wall Hangings" href="/shoppage?category=Decor">
+                    <ListItem title="Wall Hangings" href="/shoppage">
                       Handcrafted wall decor
                     </ListItem>
-                    <ListItem title="Bags" href="/shoppage?category=Bags">
+                    <ListItem title="Bags" href="/shoppage">
                       Jute and Leather bags
                     </ListItem>
                     <ListItem title="Accessories" href="/shoppage?category=Accessories">
@@ -188,15 +194,13 @@ export default function Navbar() {
             </Button>
 
             <div className="w-px h-6 bg-gray-300 mx-1"></div>
-
             {isLoggedIn ? (
-              <>
-                <Link href="/profile">
-                    <Button variant="ghost" size="icon" title="My Profile">
-                        <User className="h-5 w-5" />
-                    </Button>
-                </Link>
-
+                  <>
+                    <Link href={profilePath}>
+                        <Button variant="ghost" size="icon" title="My Profile">
+                            <User className="h-5 w-5" />
+                        </Button>
+                    </Link>
                 <Button
                     variant="ghost"
                     size="icon"
