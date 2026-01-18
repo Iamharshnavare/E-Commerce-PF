@@ -4,19 +4,9 @@ import { Heart, ShoppingCart, Star, Minus, Plus, Truck, Shield, RotateCcw, Packa
 import Navbar from '@/components/navbar/navbar';
 
 export default function CraftedRootsProduct() {
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
-
-  const sizes = ['S', 'M', 'L', 'XL'];
-  const colors = [
-    { name: 'Tan', value: '#C4A777', hover: '#B39667' },
-    { name: 'Rose', value: '#B47B7B', hover: '#A36B6B' },
-    { name: 'Green', value: '#7EAE7E', hover: '#6E9E6E' },
-    { name: 'Purple', value: '#9B7BA9', hover: '#8B6B99' }
-  ];
 
   const productImages = ['Main View', 'Side View', 'Detail View', 'Back View'];
 
@@ -70,9 +60,9 @@ export default function CraftedRootsProduct() {
   };
 
   return (
-
     <div className="min-h-screen bg-[#FAF9F6]">
-     <Navbar/>
+      
+    <Navbar/>
 
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
@@ -160,50 +150,6 @@ export default function CraftedRootsProduct() {
 
             {/* Selection Box */}
             <div className="bg-white border border-gray-200 rounded-lg p-6 lg:p-8 space-y-6 shadow-sm">
-              {/* Size Selection */}
-              <div>
-                <h5 className="text-base font-semibold text-gray-900 mb-3 uppercase tracking-wide">Size</h5>
-                <div className="flex flex-wrap gap-3">
-                  {sizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-14 h-14 border-2 rounded font-bold text-base transition-all duration-300 ${
-                        selectedSize === size
-                          ? 'bg-black text-white border-black'
-                          : 'bg-white text-black border-gray-300 hover:border-gray-900'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Color Selection */}
-              <div>
-                <h5 className="text-base font-semibold text-gray-900 mb-3 uppercase tracking-wide">Color</h5>
-                <div className="flex flex-wrap gap-3">
-                  {colors.map((color) => (
-                    <button
-                      key={color.name}
-                      onClick={() => setSelectedColor(color.name)}
-                      className={`relative w-14 h-14 rounded border-2 transition-all duration-300 ${
-                        selectedColor === color.name ? 'border-gray-900 ring-2 ring-gray-900 ring-offset-2' : 'border-gray-300'
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                      title={color.name}
-                    >
-                      {selectedColor === color.name && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Check className="w-6 h-6 text-white drop-shadow-lg" strokeWidth={3} />
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Quantity and Cart Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex items-center bg-gray-100 rounded-full px-6 py-3 border border-gray-300">

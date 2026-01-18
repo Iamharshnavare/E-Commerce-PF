@@ -1,7 +1,7 @@
 import Login from "@/app/sign-in/login/page"
 import CheckoutPage from "./cartsystem/checkout/page";
-import Shop from "@/app/shoppage/page"
 import CraftedRootsProduct from "./product/page";
+import CraftedRootsHomepage from "@/app/shoppage/page";
 export default function Home() {
   return (
    <>
