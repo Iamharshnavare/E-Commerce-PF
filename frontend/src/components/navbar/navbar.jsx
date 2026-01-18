@@ -111,23 +111,9 @@ export default function Navbar() {
           <NavigationMenu href="/shoppage">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className={"bg-[#FFF9EF]"}>Shop</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[min(90vw,500px)] gap-3 p-4 sm:grid-cols-1 md:grid-cols-2 md:gap-4 bg-[#FFF9EF]">
-                    <ListItem title="Wall Hangings" href="/shoppage">
-                      Handcrafted wall decor
-                    </ListItem>
-                    <ListItem title="Bags" href="/shoppage">
-                      Jute and Leather bags
-                    </ListItem>
-                    <ListItem title="Accessories" href="/shoppage?category=Accessories">
-                      Wallets and keychains
-                    </ListItem>
-                    <ListItem title="All Products" href="/shoppage">
-                      Browse our full collection
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
+                <NavigationMenuLink href="/shoppage" className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground bg-[#FFF9EF]">
+                  Shop
+                </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>

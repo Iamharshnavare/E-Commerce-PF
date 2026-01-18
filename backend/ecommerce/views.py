@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import Group
 from .models import Order
 from .serializers import OrderSerializer, SellerOrderSerializer, SellerProductSerializer
-from .models import Product, Offer, CartItem, Wishlist,ContactMessage
+from .models import Product, Offer, CartItem, Wishlist, ContactMessage, Review
 from .decorators import allowed_users
 from .serializers import ProductListSerializer, RegisterSerializer, LoginSerializer, ProductDetailSerializer, \
     OfferApplySerializer, CartItemSerializer, WishlistSerializer, AddToCartSerializer, UpdateCartSerializer, \
@@ -356,8 +356,30 @@ class ContactMessageCreateView(APIView):
         if xff:
             return xff.split(",")[0]
         return request.META.get("REMOTE_ADDR")
-    
 
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_review(request):
+    product_id = request.data.get("product_id")
+    rating = request.data.get("rating")
+    comment = request.data.get("comment")
+
+    product = get_object_or_404(Product, public_product_id=product_id)
+
+    # Check if user already reviewed
+    if Review.objects.filter(user=request.user, product=product).exists():
+        return Response(
+            {"error": "You have already reviewed this product."},
+            status=400
+        )
+
+    serializer = ReviewSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user, product=product)
+        return Response(serializer.data, status=201)
+
+    return Response(serializer.errors, status=400)
 
 class IsSeller(BasePermission):
     def has_permission(self, request, view):

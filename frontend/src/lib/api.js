@@ -294,3 +294,18 @@ async function safeJson(res) {
     return null;
   }
 }
+
+// Product review api
+export async function createReview(payload) {
+  const res = await authenticatedFetch(`${API_BASE}/api/reviews/create/`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to submit review");
+  }
+
+  return res.json();
+}
