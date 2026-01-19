@@ -412,12 +412,24 @@ class SellerProductListCreateView(APIView):
     permission_classes = [IsSeller]
 
     def get(self, request):
-        products = Product.objects.filter(seller=request.user)
-        serializer = SellerProductSerializer(products, many=True)
-        return Response(serializer.data)
+        products = Product.objects.filter(seller=request.user).order_by("-created_at")
+        
+        # Pagination
+        paginator = ProductPagination()
+        paginated_products = paginator.paginate_queryset(products, request)
+        
+        serializer = SellerProductSerializer(
+            paginated_products, 
+            many=True,
+            context={"request": request}
+        )
+        return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
-        serializer = SellerProductSerializer(data=request.data)
+        serializer = SellerProductSerializer(
+            data=request.data,
+            context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save(seller=request.user)
             return Response(serializer.data, status=201)
@@ -431,13 +443,13 @@ class SellerProductDetailView(APIView):
 
     def get(self, request, pk):
         product = self.get_object(pk, request.user)
-        serializer = SellerProductSerializer(product)
+        serializer = SellerProductSerializer(product, context={"request": request})
         return Response(serializer.data)
 
     def patch(self, request, pk):
         product = self.get_object(pk, request.user)
         serializer = SellerProductSerializer(
-            product, data=request.data, partial=True
+            product, data=request.data, partial=True, context={"request": request}
         )
         if serializer.is_valid():
             serializer.save()
@@ -456,9 +468,13 @@ class SellerOrdersView(APIView):
         orders = Order.objects.filter(
             items__product__seller=request.user
         ).distinct().order_by("-created_at")
+        
+        # Pagination
+        paginator = ProductPagination()
+        paginated_orders = paginator.paginate_queryset(orders, request)
 
-        serializer = SellerOrderSerializer(orders, many=True)
-        return Response(serializer.data)
+        serializer = SellerOrderSerializer(paginated_orders, many=True, context={"request": request})
+        return paginator.get_paginated_response(serializer.data)
 class SellerOrderUpdateView(APIView):
     permission_classes = [IsSeller]
 
