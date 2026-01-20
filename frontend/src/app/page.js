@@ -3,11 +3,12 @@ import CheckoutPage from "./cartsystem/checkout/page";
 import CraftedRootsProduct from "./product/page";
 import CraftedRootsHomepage from "@/app/shoppage/page";
 import ShopPage from "@/app/shoppage/page";
+import CraftedRootsProfile from "./profile/profile";
 export default function Home() {
   return (
    <>
    <div className="bg-[#FFF9EF] h-screen w-screen">
-    <ShopPage/>
+    <CraftedRootsProfile/>
    </div>
    </>
   );
