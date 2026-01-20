@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { fetchCartCount } from "@/lib/api"; // Import the helper
+import Image from "next/image";
+import { fetchCartCount, fetchWishlistCount } from "@/lib/api"; // Import the helper
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -21,11 +22,18 @@ export default function Navbar() {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const router = useRouter();
+  const [profilePath, setProfilePath] = useState("/profile");
 
   const updateCart = async () => {
     const count = await fetchCartCount();
     setCartCount(count);
+  };
+
+  const updateWishlist = async () => {
+    const count = await fetchWishlistCount();
+    setWishlistCount(count);
   };
 
   useEffect(() => {
@@ -33,12 +41,34 @@ export default function Navbar() {
     setIsLoggedIn(!!token);
     if (token) {
       updateCart();
+      updateWishlist();
+    }
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
+    if (role === "seller") {
+      setProfilePath("/seller-dashboard");
+    } else {
+      setProfilePath("/profile");
     }
 
     const handleCartUpdate = () => updateCart();
+    const handleWishlistUpdate = (event) => {
+      // Optimistically update count based on event detail
+      if (event.detail && event.detail.action) {
+        setWishlistCount(prev => 
+          event.detail.action === "add" ? prev + 1 : Math.max(0, prev - 1)
+        );
+      } else {
+        // Fallback: fetch full count if detail is not provided
+        updateWishlist();
+      }
+    };
+    
     window.addEventListener("cartUpdated", handleCartUpdate);
+    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
+    
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
+      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
     };
   }, []);
 
@@ -65,6 +95,7 @@ export default function Navbar() {
       localStorage.removeItem("username");
       setIsLoggedIn(false);
       setCartCount(0);
+      setWishlistCount(0);
       router.push("/");
     }
   };
@@ -73,33 +104,16 @@ export default function Navbar() {
     <nav className="w-full border-b bg-[#FFF9EF] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
-
-          <div className="shrink-0 flex items-center cursor-pointer" onClick={() => router.push("/")}>
-            <div className="text-2xl font-bold text-primary leading-none">
-              Crafted Roots
-            </div>
+          <div className="shrink-0 flex items-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => router.push("/homepage")}>
+            <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-600">Crafted Roots</span>
           </div>
 
-          <NavigationMenu>
+          <NavigationMenu href="/shoppage">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className={"bg-[#FFF9EF]"}>Categories</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[min(90vw,500px)] gap-3 p-4 sm:grid-cols-1 md:grid-cols-2 md:gap-4 bg-[#FFF9EF]">
-                    <ListItem title="Wall Hangings" href="/shoppage?category=Decor">
-                      Handcrafted wall decor
-                    </ListItem>
-                    <ListItem title="Bags" href="/shoppage?category=Bags">
-                      Jute and Leather bags
-                    </ListItem>
-                    <ListItem title="Accessories" href="/shoppage?category=Accessories">
-                      Wallets and keychains
-                    </ListItem>
-                    <ListItem title="All Products" href="/shoppage">
-                      Browse our full collection
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
+                <NavigationMenuLink href="/shoppage" className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground bg-[#FFF9EF]">
+                  Shop
+                </NavigationMenuLink>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
@@ -150,12 +164,14 @@ export default function Navbar() {
             <Link href="/wishlist">
               <Button variant="ghost" size="icon" className="relative">
                 <Heart className="h-5 w-5" />
-                <Badge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs pointer-events-none"
-                >
-                  0
-                </Badge>
+                {wishlistCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs pointer-events-none"
+                  >
+                    {wishlistCount}
+                  </Badge>
+                )}
               </Button>
             </Link>
 
@@ -164,15 +180,13 @@ export default function Navbar() {
             </Button>
 
             <div className="w-px h-6 bg-gray-300 mx-1"></div>
-
             {isLoggedIn ? (
-              <>
-                <Link href="/profile">
-                    <Button variant="ghost" size="icon" title="My Profile">
-                        <User className="h-5 w-5" />
-                    </Button>
-                </Link>
-
+                  <>
+                    <Link href={profilePath}>
+                        <Button variant="ghost" size="icon" title="My Profile">
+                            <User className="h-5 w-5" />
+                        </Button>
+                    </Link>
                 <Button
                     variant="ghost"
                     size="icon"

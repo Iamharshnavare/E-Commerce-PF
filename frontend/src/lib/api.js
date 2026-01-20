@@ -21,6 +21,15 @@ export async function fetchProducts(params = {}) {
   return res.json();
 }
 
+// fetch single product by ID
+export async function fetchProductById(productId) {
+  const res = await fetch(`${API_BASE}/api/product/${productId}/`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Failed to fetch product");
+  return res.json();
+}
+
 async function refreshToken() {
   const refresh = localStorage.getItem("refresh_token");
   if (!refresh) return null;
@@ -104,6 +113,15 @@ export async function fetchCartCount() {
   return 0;
 }
 
+export async function fetchWishlistCount() {
+  const res = await authenticatedFetch(`${API_BASE}/api/sync-cart-wishlist/`);
+  if (res.ok) {
+    const data = await res.json();
+    return data.wishlist.length;
+  }
+  return 0;
+}
+
 export async function fetchUserOrders() {
   const res = await authenticatedFetch(`${API_BASE}/api/user-orders/`);
   if (!res.ok) return { count: 0, orders: [] };
@@ -114,6 +132,83 @@ export async function syncCartWishlist() {
   const res = await authenticatedFetch(`${API_BASE}/api/sync-cart-wishlist/`);
   if (!res.ok) return { cart: [], wishlist: [] };
   return res.json();
+}
+
+// Wishlist cache
+let wishlistCache = null;
+let wishlistCacheTime = 0;
+const CACHE_DURATION = 30000; // 30 seconds
+
+// Wishlist APIs
+export async function addToWishlist(product_id) {
+  const res = await authenticatedFetch(`${API_BASE}/api/wishlist/`, {
+    method: "POST",
+    body: JSON.stringify({ product_id }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || errorData.detail || "Failed to add to wishlist");
+  }
+
+  const data = await res.json();
+  
+  // Invalidate cache
+  wishlistCache = null;
+  wishlistCacheTime = 0;
+  
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("wishlistUpdated", { detail: { action: "add", productId: product_id } }));
+  }
+
+  return data;
+}
+
+export async function removeFromWishlist(product_id) {
+  const res = await authenticatedFetch(`${API_BASE}/api/wishlist/`, {
+    method: "DELETE",
+    body: JSON.stringify({ product_id }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || errorData.detail || "Failed to remove from wishlist");
+  }
+
+  const data = await res.json();
+  
+  // Invalidate cache
+  wishlistCache = null;
+  wishlistCacheTime = 0;
+  
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("wishlistUpdated", { detail: { action: "remove", productId: product_id } }));
+  }
+
+  return data;
+}
+
+export async function fetchWishlist() {
+  const now = Date.now();
+  
+  // Return cached data if available and not expired
+  if (wishlistCache && (now - wishlistCacheTime) < CACHE_DURATION) {
+    return wishlistCache;
+  }
+  
+  const res = await authenticatedFetch(`${API_BASE}/api/sync-cart-wishlist/`);
+  if (res.ok) {
+    const data = await res.json();
+    wishlistCache = data.wishlist || [];
+    wishlistCacheTime = now;
+    return wishlistCache;
+  }
+  return [];
+}
+
+export function invalidateWishlistCache() {
+  wishlistCache = null;
+  wishlistCacheTime = 0;
 }
 
 // Seller APIs (assumed endpoints; adjust to backend routes if different)
@@ -135,10 +230,18 @@ export async function fetchSellerProducts(params = {}) {
 }
 
 export async function createSellerProduct(payload) {
-  const res = await authenticatedFetch(`${API_BASE}/api/seller/products/`, {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  
+  // Check if payload is FormData (file upload)
+  const isFormData = payload instanceof FormData;
+  
+  const res = await fetch(`${API_BASE}/api/seller/products/`, {
     method: "POST",
-    body: JSON.stringify(payload),
+    headers: isFormData ? headers : { ...headers, "Content-Type": "application/json" },
+    body: isFormData ? payload : JSON.stringify(payload),
   });
+  
   if (!res.ok) {
     const err = await safeJson(res);
     throw new Error(err?.detail || err?.error || "Failed to create product");
@@ -155,10 +258,18 @@ export async function fetchSellerProduct(id) {
 }
 
 export async function updateSellerProduct(id, payload) {
-  const res = await authenticatedFetch(`${API_BASE}/api/seller/products/${id}/`, {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  
+  // Check if payload is FormData (file upload)
+  const isFormData = payload instanceof FormData;
+  
+  const res = await fetch(`${API_BASE}/api/seller/products/${id}/`, {
     method: "PATCH",
-    body: JSON.stringify(payload),
+    headers: isFormData ? headers : { ...headers, "Content-Type": "application/json" },
+    body: isFormData ? payload : JSON.stringify(payload),
   });
+  
   if (!res.ok) {
     const err = await safeJson(res);
     throw new Error(err?.detail || err?.error || "Failed to update product");
@@ -198,4 +309,19 @@ async function safeJson(res) {
   } catch {
     return null;
   }
+}
+
+// Product review api
+export async function createReview(payload) {
+  const res = await authenticatedFetch(`${API_BASE}/api/reviews/create/`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || "Failed to submit review");
+  }
+
+  return res.json();
 }
